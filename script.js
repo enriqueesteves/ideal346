@@ -33,18 +33,12 @@
  let currentRoom = localStorage.getItem('currentRoom') || '';
  let username = localStorage.getItem('username') || '';
  let rooms = {
-     'grupo': '1234',
-     '02': 'senha02',
-     '03': 'senha03',
-     '04': 'senha04',
-     '05': 'senha05',
-     'amigos': 'senha18',
-     '07': 'senha07',
-     '08': 'senha08',
+    
+     
      '09': 'senha09',
-     'pindoba': '0112',
-     '11': '11',
-     '12': '12'
+     'pindoba': '0112'
+    
+    
  };
  let typingTimeout;
  let roomMessagesUnsubscribe;
