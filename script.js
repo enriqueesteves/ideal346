@@ -11,7 +11,6 @@ const errorMessage = document.getElementById('error-message');
 const typingIndicator = document.getElementById('typing-indicator');
 
 let currentRoom = '';
-let username = '';
 let rooms = {
     '01': 'senha01',
     '02': 'senha02',
@@ -28,14 +27,14 @@ let typingTimeout;
 
 function displayMessages() {
     const messages = JSON.parse(localStorage.getItem(`room_${currentRoom}`)) || [];
-    messagesDiv.innerHTML = messages.map(msg => `<p><strong>${msg.username}:</strong> ${msg.text}</p>`).join('');
+    messagesDiv.innerHTML = messages.map(msg => `<p>${msg.text}</p>`).join('');
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
 function addMessage(text) {
     if (text.trim()) {
         const messages = JSON.parse(localStorage.getItem(`room_${currentRoom}`)) || [];
-        messages.push({ username, text });
+        messages.push({ text });
         localStorage.setItem(`room_${currentRoom}`, JSON.stringify(messages));
         displayMessages();
         messageInput.value = '';
@@ -60,13 +59,7 @@ joinRoomButton.addEventListener('click', () => {
     const room = Object.keys(rooms).find(key => rooms[key] === password);
     if (room) {
         currentRoom = room;
-        username = prompt('Digite seu nome:');
-        if (username && username.trim()) {
-            showChat();
-        } else {
-            errorMessage.textContent = 'Nome inválido.';
-            currentRoom = '';
-        }
+        showChat();
     } else {
         errorMessage.textContent = 'Senha incorreta.';
     }
@@ -88,7 +81,7 @@ messageInput.addEventListener('input', () => {
 });
 
 function showTypingIndicator() {
-    typingIndicator.textContent = `${username} está digitando...`;
+    typingIndicator.textContent = `Alguém está digitando...`; // Mensagem genérica
 }
 
 function clearTypingIndicator() {
@@ -96,3 +89,4 @@ function clearTypingIndicator() {
 }
 
 showRoomSelection();
+    
