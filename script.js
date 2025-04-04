@@ -38,7 +38,7 @@
      '03': 'senha03',
      '04': 'senha04',
      '05': 'senha05',
-     '06': 'senha06',
+     'amigos': 'a123',
      '07': 'senha07',
      '08': 'senha08',
      '09': 'senha09',
