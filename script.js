@@ -36,7 +36,7 @@
     
      
      '09': 'senha09',
-     'pindoba': '0112'
+     'amigos': 'as01'
     
     
  };
