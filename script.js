@@ -84,7 +84,7 @@
  function showChat() {
      roomSelection.style.display = 'none';
      chatContainer.style.display = 'block';
-     roomTitle.textContent = `Sala ${currentRoom}`;
+     roomTitle.textContent = ` ${currentRoom}`;
  }
 
  function showRoomSelection() {
