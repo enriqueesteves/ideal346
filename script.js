@@ -1,7 +1,7 @@
  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
  import { getDatabase, ref, push, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
- 
+
  const firebaseConfig = {
      apiKey: "AIzaSyBaUW_ih2lxM9DRftochEBQUczXSPDx7vg",
      authDomain: "banco-40005.firebaseapp.com",
@@ -12,11 +12,11 @@
      appId: "1:979660568413:web:24e2510d5f840d45121ab4",
      measurementId: "G-TDHZS843JH"
  };
- 
+
  const app = initializeApp(firebaseConfig);
  const analytics = getAnalytics(app);
  const database = getDatabase(app);
- 
+
  const roomSelection = document.getElementById('room-selection');
  const chatContainer = document.getElementById('chat-container');
  const nicknameInput = document.getElementById('nickname-input');
@@ -29,7 +29,7 @@
  const roomTitle = document.getElementById('room-title');
  const errorMessage = document.getElementById('error-message');
  const typingIndicator = document.getElementById('typing-indicator');
- 
+
  let currentRoom = localStorage.getItem('currentRoom') || '';
  let username = localStorage.getItem('username') || '';
  let rooms = {
@@ -38,7 +38,7 @@
      '03': 'senha03',
      '04': 'senha04',
      '05': 'senha05',
-     '06': 'sala06',
+     '06': 'senha06',
      '07': 'senha07',
      '08': 'senha08',
      '09': 'senha09',
@@ -48,7 +48,7 @@
  };
  let typingTimeout;
  let roomMessagesUnsubscribe;
- 
+
  function displayMessages(messages) {
      console.log("displayMessages chamada com:", messages); // LOG
      messagesDiv.innerHTML = '';
@@ -59,12 +59,18 @@
              console.log("Mensagem a ser exibida:", message); // LOG
              const messageElement = document.createElement('p');
              messageElement.innerHTML = `<strong>${message.nickname || 'Anônimo'}:</strong> ${message.text}`;
+             // Adiciona classe baseada no remetente
+             if (message.nickname === username) {
+                 messageElement.classList.add('sent-by-me');
+             } else {
+                 messageElement.classList.add('received');
+             }
              messagesDiv.appendChild(messageElement);
          });
      }
      messagesDiv.scrollTop = messagesDiv.scrollHeight;
  }
- 
+
  function addMessage(text) {
      console.log("addMessage chamada com:", text); // LOG
      if (text.trim() && currentRoom && username) {
@@ -80,20 +86,20 @@
          errorMessage.textContent = 'Por favor, digite um apelido antes de enviar mensagens.';
      }
  }
- 
+
  function showChat() {
      roomSelection.style.display = 'none';
      chatContainer.style.display = 'block';
      roomTitle.textContent = `Sala ${currentRoom}`;
  }
- 
+
  function showRoomSelection() {
      chatContainer.style.display = 'none';
      roomSelection.style.display = 'block';
      roomPasswordInput.value = '';
      errorMessage.textContent = '';
  }
- 
+
  joinRoomButton.addEventListener('click', () => {
      const password = roomPasswordInput.value;
      const nickname = nicknameInput.value.trim();
@@ -124,7 +130,7 @@
          errorMessage.textContent = 'Por favor, digite um apelido.';
      }
  });
- 
+
  leaveRoomButton.addEventListener('click', () => {
      if (typeof roomMessagesUnsubscribe === 'function') {
          roomMessagesUnsubscribe();
@@ -133,25 +139,25 @@
      localStorage.removeItem('currentRoom');
      showRoomSelection();
  });
- 
+
  sendButton.addEventListener('click', () => {
      addMessage(messageInput.value);
  });
- 
+
  messageInput.addEventListener('input', () => {
      showTypingIndicator();
      clearTimeout(typingTimeout);
      typingTimeout = setTimeout(clearTypingIndicator, 1000);
  });
- 
+
  function showTypingIndicator() {
      typingIndicator.textContent = `Alguém está digitando...`;
  }
- 
+
  function clearTypingIndicator() {
      typingIndicator.textContent = '';
  }
- 
+
  if (currentRoom) {
      const nickname = localStorage.getItem('username');
      if (nickname) {
@@ -168,4 +174,4 @@
      }
  } else {
      showRoomSelection();
-          }
+ }
