@@ -1,1 +1,51 @@
+  <!DOCTYPE html>
+ <html lang="pt-BR">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Chat em Tempo Real</title>
+     <link rel="stylesheet" href="style.css">
+     <style>
+         #creation-info {
+             text-align: center;
+             font-size: 0.8em;
+             color: #777;
+             margin-top: 15px;
+         }
+     </style>
+ </head>
+ <body>
+     <div id="app">
+         <div id="room-selection" class="form-container">
+             <h2>Entrar na Sala</h2>
+             <input type="text" id="nickname-input" placeholder="Seu Apelido">
+             <input type="password" id="room-password" placeholder="Senha da Sala">
+             <button id="join-room">Entrar</button>
+             <p id="error-message" style="color: red;"></p>
+         </div>
+
+         <div id="chat-container" style="display: none;">
+             <header>
+                 <h3 id="room-title">Sala</h3>
+                 <button id="leave-room">Sair da Sala</button>
+             </header>
+             <div id="messages">
+                 </div>
+             <div id="typing-indicator">
+                 </div>
+             <div id="input-container">
+                 <input type="text" id="message-input" placeholder="Digite sua mensagem...">
+                 <button id="send-button">Enviar</button>
+             </div>
+         </div>
+     </div>
+
+     <div id="creation-info">
+         Criado e desenvolvido por <a href="https://www.instagram.com/085_enrique/" target="_blank" rel="noopener noreferrer">@085_enrique</a><br>
+         Este projeto ainda está em fase de teste.
+     </div>
+
+     <script type="module" src="script.js"></script>
+ </body>
+ </html>
  
