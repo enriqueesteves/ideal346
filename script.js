@@ -12,7 +12,7 @@ const typingIndicator = document.getElementById('typing-indicator');
 
 let currentRoom = '';
 let rooms = {
-    '01': 'senha01',
+    'grupo': '1234',
     '02': 'senha02',
     '03': 'senha03',
     '04': 'senha04',
@@ -89,4 +89,3 @@ function clearTypingIndicator() {
 }
 
 showRoomSelection();
-    
