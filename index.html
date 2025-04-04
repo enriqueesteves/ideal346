@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat com Salas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <div id="room-selection" class="form-container">
+            <h2>Selecione a Sala</h2>
+            <input type="text" id="room-password" placeholder="Senha da Sala">
+            <button id="join-room">Entrar na Sala</button>
+            <p id="error-message" style="color: red;"></p>
+        </div>
+
+        <div id="chat-container" style="display: none;">
+            <header>
+                <h2 id="room-title"></h2>
+                <button id="leave-room">Sair da Sala</button>
+                <button id="change-name">Mudar Nome</button>
+            </header>
+            <div id="messages"></div>
+            <div id="input-container">
+                <input type="text" id="message-input" placeholder="Digite sua mensagem...">
+                <button id="send-button">Enviar</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
