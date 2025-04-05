@@ -1,51 +1,54 @@
-  <!DOCTYPE html>
- <html lang="pt-BR">
- <head>
-     <meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>Chat em Tempo Real</title>
-     <link rel="stylesheet" href="style.css">
-     <style>
-         #creation-info {
-             text-align: center;
-             font-size: 0.8em;
-             color: #777;
-             margin-top: 15px;
-         }
-     </style>
- </head>
- <body>
-     <div id="app">
-         <div id="room-selection" class="form-container">
-             <h2>Entrar na Sala</h2>
-             <input type="text" id="nickname-input" placeholder="Seu Apelido">
-             <input type="password" id="room-password" placeholder="Senha da Sala">
-             <button id="join-room">Entrar</button>
-             <p id="error-message" style="color: red;"></p>
-         </div>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Privado em Tempo Real</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <div id="login-container" class="form-container">
+            <h2>Entrar no Chat</h2>
+            <label for="login-username">Usuário:</label>
+            <input type="text" id="login-username" placeholder="Seu Usuário">
+            <label for="login-password">Senha:</label>
+            <input type="password" id="login-password" placeholder="Sua Senha">
+            <button id="login-button">Entrar</button>
+            <p id="login-error" style="color: red;"></p>
+        </div>
 
-         <div id="chat-container" style="display: none;">
-             <header>
-                 <h3 id="room-title">Sala</h3>
-                 <button id="leave-room">Sair da Sala</button>
-             </header>
-             <div id="messages">
-                 </div>
-             <div id="typing-indicator">
-                 </div>
-             <div id="input-container">
-                 <input type="text" id="message-input" placeholder="Digite sua mensagem...">
-                 <button id="send-button">Enviar</button>
-             </div>
-         </div>
-     </div>
+        <div id="chat-interface" style="display: none; flex-direction: column;">
+            <div id="contacts-list-container">
+                <header>
+                    <h3>Contatos</h3>
+                    <button id="logout-button-contacts">Sair</button>
+                </header>
+                <ul id="contacts">
+                    <li data-user="Usuario01">Usuário01 <span class="new-message-indicator" id="new-message-Usuario01"></span></li>
+                    <li data-user="Usuario02">Usuário02 <span class="new-message-indicator" id="new-message-Usuario02"></span></li>
+                </ul>
+            </div>
 
-     <div id="creation-info">
-         Criado e desenvolvido por <a href="https://www.instagram.com/085_enrique/" target="_blank" rel="noopener noreferrer">@085_enrique</a><br>
-         Este projeto ainda está em fase de teste.
-     </div>
+            <div id="current-chat-container" style="display: none; flex-direction: column; flex-grow: 1;">
+                <header>
+                    <button id="back-to-contacts">Contatos</button>
+                    <h3 id="chat-title"></h3>
+                </header>
+                <div id="messages">
+                </div>
+                <div id="typing-indicator">
+                </div>
+                <div id="input-container">
+                    <input type="text" id="message-input" placeholder="Digite sua mensagem...">
+                    <button id="send-button">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-     <script type="module" src="script.js"></script>
- </body>
- </html>
- 
+    
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
