@@ -42,7 +42,9 @@ let favoriteContacts = JSON.parse(localStorage.getItem('favoriteContacts')) || {
 const users = {
     'Henrique🖤': 'as12',
     'morango🩷': '666',
+    
     'macho💙': 'as12',
+    'Scarlett🩷': '444',
 
 
 'linda🩷': 'as12'
