@@ -50,6 +50,7 @@ const users = {
    'Henrique🖤': 'as12',
     'morango🩷': '666',
     'Transante💙': 'Nett4',
+    'Vulgo Zé pretin💙': '1289',
     'peso pesado💙': '170311',
 'macho💙': 'as12',
     'Scarlett🩷': '444',
