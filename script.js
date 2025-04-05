@@ -47,9 +47,11 @@ let currentChatWith = localStorage.getItem('currentChatWith') || null;
 let favoriteContacts = JSON.parse(localStorage.getItem('favoriteContacts')) || {};
 const users = {
         'Henrique🖤': 'as12',
+   'Henrique🖤': 'as12',
     'morango🩷': '666',
     'Transante💙': 'Nett4',
-    'macho💙': 'as12',
+    'peso pesado💙': '170311',
+'macho💙': 'as12',
     'Scarlett🩷': '444',
  'convidado': '1234',
 
