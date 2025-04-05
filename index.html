@@ -10,6 +10,13 @@
         .success-message {
             color: green;
         }
+        .error-message {
+            color: red;
+        }
+        .password-toggle {
+            cursor: pointer;
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
@@ -19,20 +26,28 @@
             <label for="login-username">Usuário:</label>
             <input type="text" id="login-username" placeholder="Seu Usuário">
             <label for="login-password">Senha:</label>
-            <input type="password" id="login-password" placeholder="Sua Senha">
+            <div style="display: flex; align-items: center;">
+                <input type="password" id="login-password" placeholder="Sua Senha">
+                <i class="fas fa-eye password-toggle" id="toggle-login-password"></i>
+            </div>
             <button id="login-button">Entrar</button>
-            <p id="login-error" style="color: red;"></p>
+            <p id="login-error" class="error-message"></p>
             <p id="create-account-link" style="margin-top: 10px; cursor: pointer; color: blue;">Não tem uma conta? <span style="text-decoration: underline;">Crie uma agora</span>.</p>
         </div>
 
         <div id="register-container" class="form-container" style="display: none;">
             <h2>Criar Nova Conta</h2>
             <label for="register-username">Novo Usuário:</label>
-            <input type="text" id="register-username" placeholder="Escolha um Usuário">
+            <input type="text" id="register-username" placeholder="Escolha um Usuário (apenas letras e números)">
+            <p id="username-validation-error" class="error-message" style="display: none;">O usuário deve conter apenas letras e números.</p>
             <label for="register-password">Nova Senha:</label>
-            <input type="password" id="register-password" placeholder="Escolha uma Senha">
+            <div style="display: flex; align-items: center;">
+                <input type="password" id="register-password" placeholder="Escolha uma Senha (apenas letras e números)">
+                <i class="fas fa-eye password-toggle" id="toggle-register-password"></i>
+            </div>
+            <p id="password-validation-error" class="error-message" style="display: none;">A senha deve conter apenas letras e números.</p>
             <button id="register-button">Criar Conta</button>
-            <p id="register-error" style="color: red;"></p>
+            <p id="register-error" class="error-message"></p>
             <p id="register-success" class="success-message" style="display: none;"></p>
             <p id="back-to-login-link" style="margin-top: 10px; cursor: pointer; color: blue;">Já tem uma conta? <span style="text-decoration: underline;">Fazer Login</span>.</p>
         </div>
@@ -95,12 +110,19 @@
             const registerPasswordInput = document.getElementById('register-password');
             const registerError = document.getElementById('register-error');
             const registerSuccess = document.getElementById('register-success');
+            const usernameValidationError = document.getElementById('username-validation-error');
+            const passwordValidationError = document.getElementById('password-validation-error');
+            const toggleRegisterPassword = document.getElementById('toggle-register-password');
+            const toggleLoginPassword = document.getElementById('toggle-login-password');
+            const loginPasswordInput = document.getElementById('login-password');
 
             createAccountLink.addEventListener('click', () => {
                 loginContainer.style.display = 'none';
                 registerContainer.style.display = 'block';
                 registerError.style.display = 'none'; // Oculta qualquer erro anterior
                 registerSuccess.style.display = 'none'; // Oculta qualquer sucesso anterior
+                usernameValidationError.style.display = 'none'; // Oculta erro de validação do username
+                passwordValidationError.style.display = 'none'; // Oculta erro de validação da senha
             });
 
             backToLoginLink.addEventListener('click', () => {
@@ -108,17 +130,42 @@
                 loginContainer.style.display = 'block';
                 registerError.style.display = 'none'; // Oculta qualquer erro anterior
                 registerSuccess.style.display = 'none'; // Oculta qualquer sucesso anterior
+                usernameValidationError.style.display = 'none'; // Oculta erro de validação do username
+                passwordValidationError.style.display = 'none'; // Oculta erro de validação da senha
             });
 
             registerButton.addEventListener('click', async () => {
                 const username = registerUsernameInput.value;
                 const password = registerPasswordInput.value;
+                const usernameRegex = /^[a-zA-Z0-9]+$/;
+                const passwordRegex = /^[a-zA-Z0-9]+$/;
 
                 if (!username || !password) {
                     registerError.textContent = 'Por favor, preencha todos os campos.';
                     registerError.style.display = 'block';
                     registerSuccess.style.display = 'none';
+                    usernameValidationError.style.display = 'none';
+                    passwordValidationError.style.display = 'none';
                     return;
+                }
+
+                if (!usernameRegex.test(username)) {
+                    usernameValidationError.style.display = 'block';
+                    registerError.style.display = 'none';
+                    registerSuccess.style.display = 'none';
+                    passwordValidationError.style.display = 'none';
+                    return;
+                } else {
+                    usernameValidationError.style.display = 'none';
+                }
+
+                if (!passwordRegex.test(password)) {
+                    passwordValidationError.style.display = 'block';
+                    registerError.style.display = 'none';
+                    registerSuccess.style.display = 'none';
+                    return;
+                } else {
+                    passwordValidationError.style.display = 'none';
                 }
 
                 try {
@@ -144,19 +191,55 @@
                             registerSuccess.style.display = 'none';
                             registerContainer.style.display = 'none';
                             loginContainer.style.display = 'block';
-                        }, 50000);
+                        }, 5000);
                     } else {
                         const errorData = await response.json();
                         registerError.textContent = `Erro ao criar conta: ${errorData.message || 'Erro desconhecido'}`;
                         registerError.style.display = 'block';
                         registerSuccess.style.display = 'none';
+                        usernameValidationError.style.display = 'none';
+                        passwordValidationError.style.display = 'none';
                     }
                 } catch (error) {
                     console.error('Erro ao enviar dados para a API:', error);
                     registerError.textContent = 'Erro ao conectar com o servidor.';
                     registerError.style.display = 'block';
                     registerSuccess.style.display = 'none';
+                    usernameValidationError.style.display = 'none';
+                    passwordValidationError.style.display = 'none';
                 }
+            });
+
+            registerUsernameInput.addEventListener('input', () => {
+                const username = registerUsernameInput.value;
+                const usernameRegex = /^[a-zA-Z0-9]+$/;
+                if (!usernameRegex.test(username)) {
+                    usernameValidationError.style.display = 'block';
+                } else {
+                    usernameValidationError.style.display = 'none';
+                }
+            });
+
+            registerPasswordInput.addEventListener('input', () => {
+                const password = registerPasswordInput.value;
+                const passwordRegex = /^[a-zA-Z0-9]+$/;
+                if (!passwordRegex.test(password)) {
+                    passwordValidationError.style.display = 'block';
+                } else {
+                    passwordValidationError.style.display = 'none';
+                }
+            });
+
+            toggleRegisterPassword.addEventListener('click', () => {
+                const type = registerPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                registerPasswordInput.setAttribute('type', type);
+                toggleRegisterPassword.classList.toggle('fa-eye-slash');
+            });
+
+            toggleLoginPassword.addEventListener('click', () => {
+                const type = loginPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                loginPasswordInput.setAttribute('type', type);
+                toggleLoginPassword.classList.toggle('fa-eye-slash');
             });
         });
     </script>
