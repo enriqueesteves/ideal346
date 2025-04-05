@@ -42,7 +42,7 @@ let favoriteContacts = JSON.parse(localStorage.getItem('favoriteContacts')) || {
 const users = {
     'Henrique🖤': 'as12',
     'morango🩷': '666',
-    'macho💙': 'as12'
+    'macho💙': 'as12',
 
 
 'linda🩷': 'as12'
@@ -307,4 +307,5 @@ if (currentUser) {
     showChatInterface();
 } else {
     showLoginForm();
-}
+            }
+    
