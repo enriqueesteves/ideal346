@@ -35,12 +35,18 @@ const chatTitle = document.getElementById('chat-title');
 const typingIndicator = document.getElementById('typing-indicator');
 const showAllContactsButton = document.getElementById('show-all-contacts');
 const showFavoritesButton = document.getElementById('show-favorites');
+const globalChatButton = document.getElementById('global-chat-button');
+const globalChatContainerDiv = document.getElementById('global-chat-container');
+const globalMessagesDiv = document.getElementById('global-messages');
+const globalMessageInput = document.getElementById('global-message-input');
+const globalSendButton = document.getElementById('global-send-button');
+const backToContactsFromGlobalButton = document.getElementById('back-to-contacts-from-global');
 
-let currentUser = localStorage.getItem('currentUser') || '';
+let currentUser = localStorage.getItem('currentUser') || ''; // Tenta obter o usuário do localStorage
 let currentChatWith = localStorage.getItem('currentChatWith') || null;
 let favoriteContacts = JSON.parse(localStorage.getItem('favoriteContacts')) || {};
 const users = {
-    'Henrique🖤': 'as12',
+        'Henrique🖤': 'as12',
     'morango🩷': '666',
     
     'macho💙': 'as12',
@@ -51,6 +57,8 @@ const users = {
 };
 let activeChatListeners = {};
 let showingFavorites = false;
+let unreadMessages = {};
+let globalChatListener;
 
 function displayMessages(messages) {
     messagesDiv.innerHTML = '';
@@ -71,6 +79,8 @@ function displayMessages(messages) {
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
     if (currentChatWith) {
         updateLastRead(currentChatWith);
+        unreadMessages[currentChatWith] = 0;
+        updateContactList(Object.keys(users).filter(user => user !== currentUser));
     }
 }
 
@@ -88,12 +98,45 @@ function addMessage(text) {
     }
 }
 
+function displayGlobalMessages(messages) {
+    globalMessagesDiv.innerHTML = '';
+    if (messages) {
+        const messagesArray = Object.entries(messages).map(([key, value]) => ({ ...value, key }));
+        messagesArray.sort((a, b) => a.timestamp - b.timestamp);
+        messagesArray.forEach(message => {
+            const messageElement = document.createElement('p');
+            messageElement.innerHTML = `<strong>${message.sender}:</strong> ${message.text}`;
+            if (message.sender === currentUser) {
+                messageElement.classList.add('sent-by-me');
+            } else {
+                messageElement.classList.add('received');
+            }
+            globalMessagesDiv.appendChild(messageElement);
+        });
+    }
+    globalMessagesDiv.scrollTop = globalMessagesDiv.scrollHeight;
+}
+
+function addGlobalMessage(text) {
+    if (text.trim() && currentUser) {
+        const globalChatRef = ref(database, `globalChat`);
+        push(globalChatRef, {
+            sender: currentUser,
+            text: text,
+            timestamp: serverTimestamp()
+        });
+        globalMessageInput.value = '';
+    }
+}
+
 function showChatInterface() {
     loginContainer.style.display = 'none';
     chatInterfaceDiv.style.display = 'flex';
     contactsListContainer.style.display = 'block';
     currentChatContainerDiv.style.display = 'none';
+    globalChatContainerDiv.style.display = 'none';
     loadActiveChats();
+    loadGlobalChat();
 }
 
 function showLoginForm() {
@@ -102,15 +145,19 @@ function showLoginForm() {
     loginUsernameInput.value = '';
     loginPasswordInput.value = '';
     loginError.textContent = '';
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('currentChatWith');
-    currentUser = '';
+    localStorage.removeItem('currentChatWith'); // Mantém o currentUser no localStorage ao sair
     currentChatWith = null;
     Object.values(activeChatListeners).forEach(unsubscribe => unsubscribe());
     activeChatListeners = {};
     messagesDiv.innerHTML = '';
     chatTitle.textContent = '';
     updateContactList([]);
+    unreadMessages = {};
+    if (globalChatListener) {
+        globalChatListener();
+        globalChatListener = null;
+    }
+    globalMessagesDiv.innerHTML = '';
 }
 
 function showCurrentChat(otherUserId) {
@@ -118,6 +165,7 @@ function showCurrentChat(otherUserId) {
     localStorage.setItem('currentChatWith', otherUserId);
     contactsListContainer.style.display = 'none';
     currentChatContainerDiv.style.display = 'flex';
+    globalChatContainerDiv.style.display = 'none';
     chatTitle.textContent = otherUserId;
     messagesDiv.innerHTML = '';
 
@@ -136,23 +184,28 @@ function showCurrentChat(otherUserId) {
     activeChatListeners[otherUserId] = onValueCallback;
 
     updateLastRead(otherUserId);
-    // When a chat is opened, the new message indicator should disappear
-    const newMessageIndicator = document.getElementById(`new-message-${otherUserId}`);
-    if (newMessageIndicator) {
-        newMessageIndicator.style.display = 'none';
-        newMessageIndicator.innerHTML = '';
-    }
     updateContactList(Object.keys(users).filter(user => user !== currentUser));
 }
 
 function showContactList() {
     currentChatContainerDiv.style.display = 'none';
+    globalChatContainerDiv.style.display = 'none';
     contactsListContainer.style.display = 'block';
     currentChatWith = null;
     localStorage.removeItem('currentChatWith');
     messagesDiv.innerHTML = '';
     chatTitle.textContent = '';
     updateContactList(Object.keys(users).filter(user => user !== currentUser));
+}
+
+function showGlobalChat() {
+    contactsListContainer.style.display = 'none';
+    currentChatContainerDiv.style.display = 'none';
+    globalChatContainerDiv.style.display = 'flex';
+    chatTitle.textContent = 'Chat Global';
+    if (!globalChatListener) {
+        loadGlobalChat();
+    }
 }
 
 function getChatId(user1, user2) {
@@ -175,7 +228,6 @@ function loadActiveChats() {
             const chatId = getChatId(currentUser, otherUser);
             const messagesRef = ref(database, `chats/${chatId}`);
             const lastReadRef = ref(database, `lastRead/${chatId}/${currentUser}`);
-            const newMessageIndicator = document.getElementById(`new-message-${otherUser}`);
 
             const onValueCallback = onValue(messagesRef, (snapshot) => {
                 const messages = snapshot.val();
@@ -186,18 +238,26 @@ function loadActiveChats() {
                         Object.values(messages).forEach(msg => {
                             if (msg.sender !== currentUser && msg.timestamp > lastReadTime) {
                                 hasNewMessages = true;
+                                if (otherUser !== currentChatWith) {
+                                    unreadMessages[otherUser] = (unreadMessages[otherUser] || 0) + 1;
+                                    updateContactList(Object.keys(users).filter(u => u !== currentUser));
+                                }
                             }
                         });
-                    }
-                    if (newMessageIndicator && currentChatWith !== otherUser) {
-                        newMessageIndicator.style.display = hasNewMessages ? 'inline-block' : 'none';
-                        newMessageIndicator.innerHTML = hasNewMessages ? '<i class="fas fa-circle notification-dot"></i>' : '';
                     }
                 });
             });
             activeChatListeners[otherUser] = onValueCallback;
         });
     }
+}
+
+function loadGlobalChat() {
+    const globalChatRef = ref(database, `globalChat`);
+    globalChatListener = onValue(globalChatRef, (snapshot) => {
+        const data = snapshot.val();
+        displayGlobalMessages(data);
+    });
 }
 
 function toggleFavorite(user) {
@@ -229,6 +289,12 @@ function updateContactList(usersToDisplay) {
         const actionsDiv = document.createElement('div');
         actionsDiv.classList.add('contact-actions');
 
+        // Bell icon for new messages
+        const newMessageIcon = document.createElement('i');
+        newMessageIcon.classList.add('fas', 'fa-bell', 'new-message-bell');
+        newMessageIcon.style.display = (unreadMessages[user] > 0 && currentChatWith !== user) ? 'inline-block' : 'none';
+        actionsDiv.appendChild(newMessageIcon);
+
         const favoriteIcon = document.createElement('button');
         favoriteIcon.classList.add('favorite-button');
         favoriteIcon.innerHTML = favoriteContacts[user] ? '<i class="fas fa-star favorited"></i>' : '<i class="far fa-star"></i>';
@@ -237,12 +303,6 @@ function updateContactList(usersToDisplay) {
             toggleFavorite(user);
         });
         actionsDiv.appendChild(favoriteIcon);
-
-        const newMessageSpan = document.createElement('span');
-        newMessageSpan.classList.add('new-message-indicator');
-        newMessageSpan.id = `new-message-${user}`;
-        newMessageSpan.style.display = 'none';
-        actionsDiv.appendChild(newMessageSpan);
 
         li.appendChild(actionsDiv);
         li.addEventListener('click', () => showCurrentChat(user));
@@ -256,7 +316,7 @@ loginButton.addEventListener('click', () => {
 
     if (users[username] && users[username] === password) {
         currentUser = username;
-        localStorage.setItem('currentUser', currentUser);
+        localStorage.setItem('currentUser', currentUser); // Salva o usuário no localStorage
         showChatInterface();
     } else {
         loginError.textContent = 'Usuário ou senha incorretos.';
@@ -264,6 +324,7 @@ loginButton.addEventListener('click', () => {
 });
 
 logoutButtonContacts.addEventListener('click', () => {
+    localStorage.removeItem('currentUser'); // Remove o usuário ao clicar em "Sair"
     showLoginForm();
 });
 
@@ -271,14 +332,30 @@ backToContactsButton.addEventListener('click', () => {
     showContactList();
 });
 
+globalChatButton.addEventListener('click', () => {
+    showGlobalChat();
+});
+
+backToContactsFromGlobalButton.addEventListener('click', () => {
+    showContactList();
+});
+
 sendButton.addEventListener('click', () => {
     addMessage(messageInput.value);
+});
+
+globalSendButton.addEventListener('click', () => {
+    addGlobalMessage(globalMessageInput.value);
 });
 
 messageInput.addEventListener('input', () => {
     showTypingIndicator();
     clearTimeout(typingTimeout);
     typingTimeout = setTimeout(clearTypingIndicator, 1000);
+});
+
+globalMessageInput.addEventListener('input', () => {
+    // Opcional: Adicionar indicador de digitação global aqui
 });
 
 showAllContactsButton.addEventListener('click', () => {
@@ -305,9 +382,9 @@ function clearTypingIndicator() {
 }
 
 // Initial setup
-if (currentUser) {
+if (currentUser) { // Verifica se há um usuário no localStorage ao carregar a página
     showChatInterface();
 } else {
     showLoginForm();
-            }
-    
+                }
+        
