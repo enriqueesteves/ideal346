@@ -51,8 +51,7 @@ const users = {
     'Transante💙': 'Nett4',
     'macho💙': 'as12',
     'Scarlett🩷': '444',
-'convidado💚': '1234' ,
-    
+ 'convidado': '1234',
 
 'linda🩷': 'as12'
 };
@@ -387,5 +386,5 @@ if (currentUser) { // Verifica se há um usuário no localStorage ao carregar a 
     showChatInterface();
 } else {
     showLoginForm();
-                }
-        
+    }
+            
