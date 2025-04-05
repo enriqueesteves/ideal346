@@ -33,15 +33,22 @@ const messageInput = document.getElementById('message-input');
 const sendButton = document.getElementById('send-button');
 const chatTitle = document.getElementById('chat-title');
 const typingIndicator = document.getElementById('typing-indicator');
+const showAllContactsButton = document.getElementById('show-all-contacts');
+const showFavoritesButton = document.getElementById('show-favorites');
 
 let currentUser = localStorage.getItem('currentUser') || '';
 let currentChatWith = localStorage.getItem('currentChatWith') || null;
+let favoriteContacts = JSON.parse(localStorage.getItem('favoriteContacts')) || {};
 const users = {
-    'Usuario01': '1234',
-    'morango🩷':'666',
-'Usuario02': '1234'
+    'Henrique🖤': 'as12',
+    'morango🩷': '666',
+    'macho💙': 'as12'
+
+
+'linda🩷': 'as12'
 };
 let activeChatListeners = {};
+let showingFavorites = false;
 
 function displayMessages(messages) {
     messagesDiv.innerHTML = '';
@@ -108,8 +115,8 @@ function showCurrentChat(otherUserId) {
     currentChatWith = otherUserId;
     localStorage.setItem('currentChatWith', otherUserId);
     contactsListContainer.style.display = 'none';
-    currentChatContainerDiv.style.display = 'flex'; // Make chat container take full space
-    chatTitle.textContent = `Chat com ${otherUserId}`;
+    currentChatContainerDiv.style.display = 'flex';
+    chatTitle.textContent = otherUserId;
     messagesDiv.innerHTML = '';
 
     const chatId = getChatId(currentUser, otherUserId);
@@ -127,6 +134,12 @@ function showCurrentChat(otherUserId) {
     activeChatListeners[otherUserId] = onValueCallback;
 
     updateLastRead(otherUserId);
+    // When a chat is opened, the new message indicator should disappear
+    const newMessageIndicator = document.getElementById(`new-message-${otherUserId}`);
+    if (newMessageIndicator) {
+        newMessageIndicator.style.display = 'none';
+        newMessageIndicator.innerHTML = '';
+    }
     updateContactList(Object.keys(users).filter(user => user !== currentUser));
 }
 
@@ -137,7 +150,7 @@ function showContactList() {
     localStorage.removeItem('currentChatWith');
     messagesDiv.innerHTML = '';
     chatTitle.textContent = '';
-    // Keep listeners active in the background
+    updateContactList(Object.keys(users).filter(user => user !== currentUser));
 }
 
 function getChatId(user1, user2) {
@@ -153,10 +166,10 @@ function updateLastRead(otherUserId) {
 
 function loadActiveChats() {
     if (currentUser) {
-        const otherUsers = Object.keys(users).filter(user => user !== currentUser);
-        updateContactList(otherUsers);
+        const allUsers = Object.keys(users).filter(user => user !== currentUser);
+        updateContactList(allUsers);
 
-        otherUsers.forEach(otherUser => {
+        allUsers.forEach(otherUser => {
             const chatId = getChatId(currentUser, otherUser);
             const messagesRef = ref(database, `chats/${chatId}`);
             const lastReadRef = ref(database, `lastRead/${chatId}/${currentUser}`);
@@ -174,9 +187,9 @@ function loadActiveChats() {
                             }
                         });
                     }
-                    if (newMessageIndicator) {
-                        newMessageIndicator.style.display = hasNewMessages ? 'inline' : 'none';
-                        newMessageIndicator.textContent = hasNewMessages ? '●' : ''; // Or any other indicator
+                    if (newMessageIndicator && currentChatWith !== otherUser) {
+                        newMessageIndicator.style.display = hasNewMessages ? 'inline-block' : 'none';
+                        newMessageIndicator.innerHTML = hasNewMessages ? '<i class="fas fa-circle notification-dot"></i>' : '';
                     }
                 });
             });
@@ -185,17 +198,51 @@ function loadActiveChats() {
     }
 }
 
+function toggleFavorite(user) {
+    if (favoriteContacts[user]) {
+        delete favoriteContacts[user];
+    } else {
+        favoriteContacts[user] = true;
+    }
+    localStorage.setItem('favoriteContacts', JSON.stringify(favoriteContacts));
+    updateContactList(Object.keys(users).filter(u => u !== currentUser));
+}
+
 function updateContactList(usersToDisplay) {
     contactsUl.innerHTML = '';
-    usersToDisplay.forEach(user => {
+    const filteredUsers = showingFavorites
+        ? usersToDisplay.filter(user => favoriteContacts[user])
+        : usersToDisplay;
+
+    filteredUsers.forEach(user => {
         const li = document.createElement('li');
+        li.classList.add('contact-item');
         li.dataset.user = user;
-        li.textContent = user + ' ';
+
+        const userSpan = document.createElement('span');
+        userSpan.classList.add('contact-name');
+        userSpan.textContent = user;
+        li.appendChild(userSpan);
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.classList.add('contact-actions');
+
+        const favoriteIcon = document.createElement('button');
+        favoriteIcon.classList.add('favorite-button');
+        favoriteIcon.innerHTML = favoriteContacts[user] ? '<i class="fas fa-star favorited"></i>' : '<i class="far fa-star"></i>';
+        favoriteIcon.addEventListener('click', (event) => {
+            event.stopPropagation();
+            toggleFavorite(user);
+        });
+        actionsDiv.appendChild(favoriteIcon);
+
         const newMessageSpan = document.createElement('span');
         newMessageSpan.classList.add('new-message-indicator');
         newMessageSpan.id = `new-message-${user}`;
         newMessageSpan.style.display = 'none';
-        li.appendChild(newMessageSpan);
+        actionsDiv.appendChild(newMessageSpan);
+
+        li.appendChild(actionsDiv);
         li.addEventListener('click', () => showCurrentChat(user));
         contactsUl.appendChild(li);
     });
@@ -232,10 +279,25 @@ messageInput.addEventListener('input', () => {
     typingTimeout = setTimeout(clearTypingIndicator, 1000);
 });
 
-function showTypingIndicator() {
-    typingIndicator.textContent = `Alguém está digitando...`;
-}
+showAllContactsButton.addEventListener('click', () => {
+    showingFavorites = false;
+    showAllContactsButton.classList.add('active');
+    showFavoritesButton.classList.remove('active');
+    updateContactList(Object.keys(users).filter(u => u !== currentUser));
+});
 
+showFavoritesButton.addEventListener('click', () => {
+    showingFavorites = true;
+    showFavoritesButton.classList.add('active');
+    showAllContactsButton.classList.remove('active');
+    updateContactList(Object.keys(users).filter(u => u !== currentUser));
+});
+
+// Typing indicator functions
+let typingTimeout;
+function showTypingIndicator() {
+    typingIndicator.textContent = `Digitando...`;
+}
 function clearTypingIndicator() {
     typingIndicator.textContent = '';
 }
@@ -245,5 +307,4 @@ if (currentUser) {
     showChatInterface();
 } else {
     showLoginForm();
-     }
- 
+}
