@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Privado em Tempo Real</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
     <div id="app">
         <div id="login-container" class="form-container">
-            <h2>Entrar no Chat</h2>
+            <h2>sem nome</h2>
             <label for="login-username">Usuário:</label>
             <input type="text" id="login-username" placeholder="Seu Usuário">
             <label for="login-password">Senha:</label>
@@ -18,36 +19,36 @@
             <p id="login-error" style="color: red;"></p>
         </div>
 
-        <div id="chat-interface" style="display: none; flex-direction: column;">
+        <div id="chat-interface" style="display: none; flex-direction: column; height: 100%;">
             <div id="contacts-list-container">
-                <header>
+                <header class="contacts-header">
                     <h3>Contatos</h3>
-                    <button id="logout-button-contacts">Sair</button>
+                    <button id="logout-button-contacts" class="secondary-button"><i class="fas fa-sign-out-alt"></i> Sair</button>
                 </header>
-                <ul id="contacts">
-                    <li data-user="Usuario01">Usuário01 <span class="new-message-indicator" id="new-message-Usuario01"></span></li>
-                    <li data-user="Usuario02">Usuário02 <span class="new-message-indicator" id="new-message-Usuario02"></span></li>
-                </ul>
+                <div id="contacts-filter">
+                    <button id="show-all-contacts" class="filter-button active">Todos</button>
+                    <button id="show-favorites" class="filter-button"><i class="fas fa-star"></i> Favoritos</button>
+                </div>
+                <ul id="contacts" class="contacts-list">
+                    </ul>
             </div>
 
             <div id="current-chat-container" style="display: none; flex-direction: column; flex-grow: 1;">
-                <header>
-                    <button id="back-to-contacts">Contatos</button>
+                <header class="chat-header">
+                    <button id="back-to-contacts" class="secondary-button"><i class="fas fa-arrow-left"></i> Contatos</button>
                     <h3 id="chat-title"></h3>
                 </header>
-                <div id="messages">
+                <div id="messages" class="messages-container">
                 </div>
-                <div id="typing-indicator">
+                <div id="typing-indicator" class="typing-indicator">
                 </div>
                 <div id="input-container">
-                    <input type="text" id="message-input" placeholder="Digite sua mensagem...">
-                    <button id="send-button">Enviar</button>
+                    <input type="text" id="message-input" class="message-input" placeholder="Digite sua mensagem...">
+                    <button id="send-button" class="primary-button"><i class="fas fa-paper-plane"></i> Enviar</button>
                 </div>
             </div>
         </div>
     </div>
-
-    
 
     <script type="module" src="script.js"></script>
 </body>
