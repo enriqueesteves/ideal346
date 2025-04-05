@@ -51,7 +51,7 @@ const users = {
     'Transante💙': 'Nett4',
     'macho💙': 'as12',
     'Scarlett🩷': '444',
-
+'convidado': '1234',
 
 'linda🩷': 'as12'
 };
