@@ -6,6 +6,11 @@
     <title>Chat Privado e Global em Tempo Real</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        .success-message {
+            color: green;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
@@ -17,6 +22,19 @@
             <input type="password" id="login-password" placeholder="Sua Senha">
             <button id="login-button">Entrar</button>
             <p id="login-error" style="color: red;"></p>
+            <p id="create-account-link" style="margin-top: 10px; cursor: pointer; color: blue;">Não tem uma conta? <span style="text-decoration: underline;">Crie uma agora</span>.</p>
+        </div>
+
+        <div id="register-container" class="form-container" style="display: none;">
+            <h2>Criar Nova Conta</h2>
+            <label for="register-username">Novo Usuário:</label>
+            <input type="text" id="register-username" placeholder="Escolha um Usuário">
+            <label for="register-password">Nova Senha:</label>
+            <input type="password" id="register-password" placeholder="Escolha uma Senha">
+            <button id="register-button">Criar Conta</button>
+            <p id="register-error" style="color: red;"></p>
+            <p id="register-success" class="success-message" style="display: none;"></p>
+            <p id="back-to-login-link" style="margin-top: 10px; cursor: pointer; color: blue;">Já tem uma conta? <span style="text-decoration: underline;">Fazer Login</span>.</p>
         </div>
 
         <div id="chat-interface" style="display: none; flex-direction: column; height: 100%;">
@@ -66,6 +84,82 @@
         </div>
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginContainer = document.getElementById('login-container');
+            const registerContainer = document.getElementById('register-container');
+            const createAccountLink = document.getElementById('create-account-link');
+            const backToLoginLink = document.getElementById('back-to-login-link');
+            const registerButton = document.getElementById('register-button');
+            const registerUsernameInput = document.getElementById('register-username');
+            const registerPasswordInput = document.getElementById('register-password');
+            const registerError = document.getElementById('register-error');
+            const registerSuccess = document.getElementById('register-success');
+
+            createAccountLink.addEventListener('click', () => {
+                loginContainer.style.display = 'none';
+                registerContainer.style.display = 'block';
+                registerError.style.display = 'none'; // Oculta qualquer erro anterior
+                registerSuccess.style.display = 'none'; // Oculta qualquer sucesso anterior
+            });
+
+            backToLoginLink.addEventListener('click', () => {
+                registerContainer.style.display = 'none';
+                loginContainer.style.display = 'block';
+                registerError.style.display = 'none'; // Oculta qualquer erro anterior
+                registerSuccess.style.display = 'none'; // Oculta qualquer sucesso anterior
+            });
+
+            registerButton.addEventListener('click', async () => {
+                const username = registerUsernameInput.value;
+                const password = registerPasswordInput.value;
+
+                if (!username || !password) {
+                    registerError.textContent = 'Por favor, preencha todos os campos.';
+                    registerError.style.display = 'block';
+                    registerSuccess.style.display = 'none';
+                    return;
+                }
+
+                try {
+                    const response = await fetch('https://api.sheetmonkey.io/form/pJZCcZ9aABKDXHJCQmbDrc', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ username: username, password: password }),
+                    });
+
+                    if (response.ok) {
+                        registerError.style.display = 'none';
+                        registerSuccess.textContent = 'Seu usuário foi criado com sucesso, aguarde até 2 horas para começar a usar sua conta.';
+                        registerSuccess.style.display = 'block';
+                        // Optionally clear the form
+                        registerUsernameInput.value = '';
+                        registerPasswordInput.value = '';
+                        registerPasswordInput.blur(); // Remove o foco do campo de senha
+
+                        // Mostrar a mensagem de sucesso por mais tempo (5 segundos neste exemplo)
+                        setTimeout(() => {
+                            registerSuccess.style.display = 'none';
+                            registerContainer.style.display = 'none';
+                            loginContainer.style.display = 'block';
+                        }, 50000);
+                    } else {
+                        const errorData = await response.json();
+                        registerError.textContent = `Erro ao criar conta: ${errorData.message || 'Erro desconhecido'}`;
+                        registerError.style.display = 'block';
+                        registerSuccess.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.error('Erro ao enviar dados para a API:', error);
+                    registerError.textContent = 'Erro ao conectar com o servidor.';
+                    registerError.style.display = 'block';
+                    registerSuccess.style.display = 'none';
+                }
+            });
+        });
+    </script>
     <script type="module" src="script.js"></script>
 </body>
 </html>
