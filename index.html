@@ -3,77 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Privado e Global em Tempo Real</title>
+    <title>BLACHAT - Chat Anônimo</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
-        .success-message {
-            color: green;
-        }
-        .error-message {
-            color: red;
-        }
-        .password-toggle {
-            cursor: pointer;
-            margin-left: 5px;
-        }
-        .social-links-top {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .social-links-top a {
-            display: inline-block;
-            margin: 0 10px;
-            font-size: 24px;
-            color: #333;
-            text-decoration: none;
-        }
-        .social-links-top a:hover {
-            opacity: 0.8;
-        }
-        /* Estilos específicos para os ícones */
-        .fa-whatsapp {
-            color: #25D366;
-        }
-        .fa-instagram {
-            color: #E4405F;
-        }
-        .contacts-social-links {
-            text-align: center;
-            margin-top: 20px;
-            padding: 15px 0;
-            border-top: 1px solid #eee;
-        }
-        .contacts-social-links p {
-            margin-bottom: 5px;
-            font-size: 0.9em;
-            color: #777;
-        }
-        .contacts-social-links a {
-            display: inline-block;
-            margin: 0 10px;
-            font-size: 24px;
-            color: #333;
-            text-decoration: none;
-        }
-        .contacts-social-links a:hover {
-            opacity: 0.8;
-        }
-    </style>
 </head>
 <body>
     <div id="app">
         <div id="login-container" class="form-container">
             <div class="social-links-top">
-                <p style="margin-bottom: 5px;"> em caso de dúvidas, denuncia ou opinião fale com o desenvolvedor diretamente:</p>
-                <a href="https://wa.me/5585981369468" target="_blank" title="Fale comigo no WhatsApp">
-                    <i class="fab fa-whatsapp"></i>
-                </a>
-                <a href="https://www.instagram.com/085_enrique?igsh=azNyNmp6ODlzOGVr" target="_blank" title="Fale comigo no Instagram">
-                    <i class="fab fa-instagram"></i>
-                </a>
+                <p style="margin-bottom: 5px;">em caso de dúvidas, denúncia ou opinião fale com o desenvolvedor diretamente:</p>
+                <div>
+                    <a href="https://wa.me/5585981369468" target="_blank" title="Fale comigo no WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="https://www.instagram.com/085_enrique?igsh=azNyNmp6ODlzOGVr" target="_blank" title="Fale comigo no Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
             </div>
-            <h2>BLACHAT</h2>
+            <div class="logo-container">
+                <div class="logo-graphic">B</div>
+                <span class="logo-text">LACHAT</span>
+            </div>
+            <h2></h2>
             <label for="login-username">Usuário:</label>
             <input type="text" id="login-username" placeholder="Seu Usuário">
             <label for="login-password">Senha:</label>
@@ -89,12 +41,18 @@
         <div id="register-container" class="form-container" style="display: none;">
             <div class="social-links-top">
                 <p style="margin-bottom: 5px;">Fale comigo:</p>
-                <a href="https://wa.me/5585981369468" target="_blank" title="Fale comigo no WhatsApp">
-                    <i class="fab fa-whatsapp"></i>
-                </a>
-                <a href="https://www.instagram.com/085_enrique?igsh=azNyNmp6ODlzOGVr" target="_blank" title="Fale comigo no Instagram">
-                    <i class="fab fa-instagram"></i>
-                </a>
+                <div>
+                    <a href="https://wa.me/5585981369468" target="_blank" title="Fale comigo no WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="https://www.instagram.com/085_enrique?igsh=azNyNmp6ODlzOGVr" target="_blank" title="Fale comigo no Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="logo-container">
+                <div class="logo-graphic">B</div>
+                <span class="logo-text">LACHAT</span>
             </div>
             <h2>Criar Nova Conta</h2>
             <label for="register-username">Novo Usuário:</label>
@@ -128,13 +86,15 @@
                 <ul id="contacts" class="contacts-list">
                 </ul>
                 <div class="contacts-social-links">
-                    <p>em caso de dúvidas, denuncia ou opinião fale com o desenvolvedor diretamente:</p>
-                    <a href="https://wa.me/5585981369468" target="_blank" title="Fale comigo no WhatsApp">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
-                    <a href="https://www.instagram.com/085_enrique?igsh=azNyNmp6ODlzOGVr" target="_blank" title="Fale comigo no Instagram">
-                        <i class="fab fa-instagram"></i>
-                    </a>
+                    <p>em caso de dúvidas, denúncia ou opinião fale com o desenvolvedor diretamente:</p>
+                    <div>
+                        <a href="https://wa.me/5585981369468" target="_blank" title="Fale comigo no WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a href="https://www.instagram.com/085_enrique?igsh=azNyNmp6ODlzOGVr" target="_blank" title="Fale comigo no Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
 
