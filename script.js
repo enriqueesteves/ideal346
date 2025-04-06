@@ -53,7 +53,9 @@
  'macho💙': 'as12',
  'lucas':'	lucas ',
   'alan': 'qwe1234',
-
+'Xkz':'102030',
+'tkg':	'102030',
+'Voce':	'as12',
 
 'anonimo':'as12',
      'Scarlett🩷': '444',
