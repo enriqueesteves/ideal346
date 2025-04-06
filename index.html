@@ -223,7 +223,7 @@
                             registerSuccess.style.display = 'none';
                             registerContainer.style.display = 'none';
                             loginContainer.style.display = 'block';
-                        }, 5000);
+                        }, 90000);
                     } else {
                         const errorData = await response.json();
                         registerError.textContent = `Erro ao criar conta: ${errorData.message || 'Erro desconhecido'}`;
