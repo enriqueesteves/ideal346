@@ -41,32 +41,61 @@
  const globalMessageInput = document.getElementById('global-message-input');
  const globalSendButton = document.getElementById('global-send-button');
  const backToContactsFromGlobalButton = document.getElementById('back-to-contacts-from-global');
+ const imageInput = document.getElementById('image-input');
+ const globalImageInput = document.getElementById('global-image-input');
+ const modal = document.getElementById('image-modal');
+ const modalImage = document.getElementById('modal-image');
+ const closeModal = document.getElementById('close-modal');
 
  let currentUser = localStorage.getItem('currentUser') || ''; // Tenta obter o usuário do localStorage
  let currentChatWith = localStorage.getItem('currentChatWith') || null;
  let favoriteContacts = JSON.parse(localStorage.getItem('favoriteContacts')) || {};
  const users = {
-         'Henrique🖤': 'as12',
+     'Henrique🖤': 'as12',
      'morango🩷': '666',
      'Transante💙': 'Nett4',
      'peso pesado💙': '170311',
- 'macho💙': 'as12',
- 'lucas':'	lucas ',
-  'alan': 'qwe1234',
-'Xkz':'102030',
-'tkg':	'102030',
-'Voce':	'as12',
-
-'anonimo':'as12',
+     'macho💙': 'as12',
+     'lucas': '	lucas ',
+     'alan': 'qwe1234',
+     'Xkz': '102030',
+     'tkg': '102030',
+     'Voce': 'as12',
+     'anonimo': 'as12',
      'Scarlett🩷': '444',
-  'convidado': '1234',
-
- 'linda🩷': 'as12'
+     'convidado': '1234',
+     'linda🩷': 'as12'
  };
  let activeChatListeners = {};
  let showingFavorites = false;
  let unreadMessages = {};
  let globalChatListener;
+
+ imageInput.addEventListener('change', (event) => {
+     const file = event.target.files[0];
+     if (file) {
+         const reader = new FileReader();
+         reader.onload = function(e) {
+             const imageDataURL = e.target.result;
+             addMessage(imageDataURL);
+         }
+         reader.readAsDataURL(file);
+         imageInput.value = ''; // Reset the input
+     }
+ });
+
+ globalImageInput.addEventListener('change', (event) => {
+     const file = event.target.files[0];
+     if (file) {
+         const reader = new FileReader();
+         reader.onload = function(e) {
+             const imageDataURL = e.target.result;
+             addGlobalMessage(imageDataURL);
+         }
+         reader.readAsDataURL(file);
+         globalImageInput.value = ''; // Reset the input
+     }
+ });
 
  function displayMessages(messages) {
      messagesDiv.innerHTML = '';
@@ -75,7 +104,21 @@
          messagesArray.sort((a, b) => a.timestamp - b.timestamp);
          messagesArray.forEach(message => {
              const messageElement = document.createElement('p');
-             messageElement.innerHTML = `<strong>${message.sender}:</strong> ${message.text}`;
+             if (message.image) {
+                 const img = document.createElement('img');
+                 img.src = message.image;
+                 img.style.maxWidth = '200px';
+                 img.style.maxHeight = '200px';
+                 img.style.borderRadius = '8px';
+                 img.style.cursor = 'pointer'; // Indica que a imagem é clicável
+                 img.addEventListener('click', () => {
+                     modalImage.src = message.image;
+                     modal.style.display = 'block';
+                 });
+                 messageElement.appendChild(img);
+             } else {
+                 messageElement.innerHTML = `<strong>${message.sender}:</strong> ${message.text}`;
+             }
              if (message.sender === currentUser) {
                  messageElement.classList.add('sent-by-me');
              } else {
@@ -92,15 +135,24 @@
      }
  }
 
- function addMessage(text) {
-     if (text.trim() && currentUser && currentChatWith) {
+ function addMessage(textOrImage) {
+     if ((textOrImage && textOrImage.trim()) || textOrImage?.startsWith('data:image')) {
+         if (!currentUser || !currentChatWith) {
+             console.error("currentUser or currentChatWith is not set.");
+             return;
+         }
          const chatId = getChatId(currentUser, currentChatWith);
          const chatRef = ref(database, `chats/${chatId}`);
-         push(chatRef, {
+         const messageData = {
              sender: currentUser,
-             text: text,
              timestamp: serverTimestamp()
-         });
+         };
+         if (textOrImage?.startsWith('data:image')) {
+             messageData.image = textOrImage;
+         } else if (textOrImage?.trim()) {
+             messageData.text = textOrImage.trim();
+         }
+         push(chatRef, messageData);
          messageInput.value = '';
          clearTypingIndicator();
      }
@@ -113,7 +165,21 @@
          messagesArray.sort((a, b) => a.timestamp - b.timestamp);
          messagesArray.forEach(message => {
              const messageElement = document.createElement('p');
-             messageElement.innerHTML = `<strong>${message.sender}:</strong> ${message.text}`;
+             if (message.image) {
+                 const img = document.createElement('img');
+                 img.src = message.image;
+                 img.style.maxWidth = '200px';
+                 img.style.maxHeight = '200px';
+                 img.style.borderRadius = '8px';
+                 img.style.cursor = 'pointer'; // Indica que a imagem é clicável
+                 img.addEventListener('click', () => {
+                     modalImage.src = message.image;
+                     modal.style.display = 'block';
+                 });
+                 messageElement.appendChild(img);
+             } else {
+                 messageElement.innerHTML = `<strong>${message.sender}:</strong> ${message.text}`;
+             }
              if (message.sender === currentUser) {
                  messageElement.classList.add('sent-by-me');
              } else {
@@ -125,14 +191,23 @@
      globalMessagesDiv.scrollTop = globalMessagesDiv.scrollHeight;
  }
 
- function addGlobalMessage(text) {
-     if (text.trim() && currentUser) {
+ function addGlobalMessage(textOrImage) {
+     if ((textOrImage && textOrImage.trim()) || textOrImage?.startsWith('data:image')) {
+         if (!currentUser) {
+             console.error("currentUser is not set for global chat.");
+             return;
+         }
          const globalChatRef = ref(database, `globalChat`);
-         push(globalChatRef, {
+         const messageData = {
              sender: currentUser,
-             text: text,
              timestamp: serverTimestamp()
-         });
+         };
+         if (textOrImage?.startsWith('data:image')) {
+             messageData.image = textOrImage;
+         } else if (textOrImage?.trim()) {
+             messageData.text = textOrImage.trim();
+         }
+         push(globalChatRef, messageData);
          globalMessageInput.value = '';
      }
  }
@@ -324,7 +399,7 @@
          favoriteIcon.classList.add('favorite-button');
          favoriteIcon.innerHTML = favoriteContacts[user] ? '<i class="fas fa-star favorited"></i>' : '<i class="far fa-star"></i>';
          favoriteIcon.addEventListener('click', (event) => {
-             event.stopPropagation();
+             event.stopPropagation
              toggleFavorite(user);
          });
          actionsDiv.appendChild(favoriteIcon);
@@ -433,5 +508,13 @@
      }
  } else {
      showLoginForm();
-}
-         
+ }
+
+ // Modal functionality for image zoom
+ closeModal.addEventListener('click', () => {
+     modal.style.display = 'none';
+ });
+
+ window.addEventListener('click', (event) => {
+     if (event.target === modal) {
+          
