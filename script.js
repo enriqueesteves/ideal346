@@ -52,6 +52,7 @@
      'peso pesado💙': '170311',
  'macho💙': 'as12',
  'lucas':'	lucas ',
+  'alan': 'qwe1234',
 
 
 'anonimo':'as12',
