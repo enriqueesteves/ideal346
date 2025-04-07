@@ -1,4 +1,4 @@
- import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
  import { getDatabase, ref, push, onValue, serverTimestamp, get, set } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
@@ -300,9 +300,8 @@
          const lastReadRef = ref(database, `lastRead/${getChatId(currentUser, otherUserId)}/${currentUser}`);
          set(lastReadRef, serverTimestamp());
      }
- }
-
- function loadActiveChats() {
+         }
+              function loadActiveChats() {
      if (currentUser) {
          const allUsers = Object.keys(users).filter(user => user !== currentUser);
          updateContactList(allUsers);
@@ -399,7 +398,7 @@
          favoriteIcon.classList.add('favorite-button');
          favoriteIcon.innerHTML = favoriteContacts[user] ? '<i class="fas fa-star favorited"></i>' : '<i class="far fa-star"></i>';
          favoriteIcon.addEventListener('click', (event) => {
-             event.stopPropagation
+             event.stopPropagation();
              toggleFavorite(user);
          });
          actionsDiv.appendChild(favoriteIcon);
@@ -483,8 +482,9 @@
 
  // Add search input field
  const searchInput = document.createElement('input');
+ const searchInputId = 'contact-search';
  searchInput.type = 'text';
- searchInput.id = 'contact-search';
+ searchInput.id = searchInputId;
  searchInput.placeholder = 'Pesquisar contatos...';
  contactsListContainer.insertBefore(searchInput, contactsListContainer.firstChild);
 
@@ -517,4 +517,6 @@
 
  window.addEventListener('click', (event) => {
      if (event.target === modal) {
-          
+         modal.style.display = 'none';
+     }
+ });
