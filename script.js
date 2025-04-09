@@ -1,4 +1,4 @@
- import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
  import { getDatabase, ref, push, onValue, serverTimestamp, get, set, remove } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
@@ -64,14 +64,15 @@
  const enterPasswordTitle = document.getElementById('enter-password-title');
  const enterPasswordError = document.getElementById('enter-password-error');
  const groupToJoinInput = document.getElementById('group-to-join');
- // Novo input de arquivo específico para grupos
- const groupImageInput = document.getElementById('image-input'); // Reutilizando o mesmo input, mas a lógica de envio mudará
+ const guestLoginContainer = document.getElementById('guest-login-container');
+ const guestNameInput = document.getElementById('guest-name-input');
+ const guestLoginButton = document.getElementById('guest-login-button');
 
  let currentUser = localStorage.getItem('currentUser') || ''; // Tenta obter o usuário do localStorage
  let currentChatWith = localStorage.getItem('currentChatWith') || null;
  let favoriteContacts = JSON.parse(localStorage.getItem('favoriteContacts')) || {};
  const users = {
-     'Henrique🖤': 'as12', // Exemplo de ADM
+    'Henrique🖤': 'as12', // Exemplo de ADM
      'morango🩷': '666',
      'Transante💙': 'Nett4',
      'peso pesado💙': '170311',
@@ -248,13 +249,10 @@
 
  function addGlobalMessage(textOrImage) {
      if ((textOrImage && textOrImage.trim()) || textOrImage?.startsWith('data:image')) {
-         if (!currentUser) {
-             console.error("currentUser is not set for global chat.");
-             return;
-         }
+         const sender = currentUser || generateGuestName(); // Usa currentUser se logado, senão gera um nome de convidado
          const globalChatRef = ref(database, `globalChat`);
          const messageData = {
-             sender: currentUser,
+             sender: sender,
              timestamp: serverTimestamp()
          };
          if (textOrImage?.startsWith('data:image')) {
@@ -265,6 +263,10 @@
          push(globalChatRef, messageData);
          globalMessageInput.value = '';
      }
+ }
+
+ function generateGuestName() {
+     return `Convidado ${Math.floor(Math.random() * 1000)}`;
  }
 
  function displayGroupMessages(messages) {
@@ -312,13 +314,14 @@
 
  function addGroupMessage(textOrImage) {
      if ((textOrImage && textOrImage.trim()) || textOrImage?.startsWith('data:image')) {
-         if (!currentUser || !currentGroupId) {
-             console.error("currentUser or currentGroupId is not set for group message.");
+         if (!currentGroupId) {
+             console.error("currentGroupId is not set for group message.");
              return;
          }
+         const sender = currentUser || generateGuestName(); // Usa currentUser se logado, senão gera um nome de convidado
          const groupChatRef = ref(database, `groups/${currentGroupId}/messages`);
          const messageData = {
-             sender: currentUser,
+             sender: sender,
              timestamp: serverTimestamp()
          };
          if (textOrImage?.startsWith('data:image')) {
@@ -335,14 +338,18 @@
  function showChatInterface() {
      loginContainer.style.display = 'none';
      chatInterfaceDiv.style.display = 'flex';
-     contactsListContainer.style.display = 'block';
+     contactsListContainer.style.display = 'block'; // Garante que o container da lista esteja visível
      currentChatContainerDiv.style.display = 'none';
      globalChatContainerDiv.style.display = 'none';
      groupsContainerDiv.style.display = 'none';
-     loadActiveChats();
      loadGlobalChat();
      loadGroups();
      updateAdminUI();
+     if (currentUser && users[currentUser]) {
+         loadActiveChats(); // Carrega os contatos privados para usuários logados
+     } else {
+         updateContactList([]); // Mantém a lista vazia para convidados
+     }
  }
 
  function updateAdminUI() {
@@ -355,8 +362,10 @@
 
  function showLoginForm() {
      chatInterfaceDiv.style.display = 'none';
-     loginContainer.style.display = 'block';
+     loginContainer.style.display = 'flex';
+     guestLoginContainer.style.display = 'block';
      loginUsernameInput.value = '';
+     loginPasswordInput
      loginPasswordInput.value = '';
      loginError.textContent = '';
      localStorage.removeItem('currentChatWith');
@@ -376,9 +385,15 @@
      groupChatListeners = {};
      groupsListUl.innerHTML = '';
      currentGroupId = null;
+     localStorage.removeItem('currentUser'); // Limpa o nome de usuário ao sair
+     currentUser = '';
  }
 
  function showCurrentChat(otherUserId) {
+     if (!currentUser || !users[currentUser]) { // Verifica se currentUser existe e se é um usuário registrado
+         alert("Você precisa estar logado com uma conta para iniciar um chat privado.");
+         return;
+     }
      currentChatWith = otherUserId;
      currentGroupId = null;
      localStorage.setItem('currentChatWith', otherUserId);
@@ -400,7 +415,7 @@
          const data = snapshot.val();
          displayMessages(data);
      });
-     activeChatListeners[otherUserId] = onValueCallback;
+      activeChatListeners[otherUserId] = onValueCallback;
 
      updateLastRead(otherUserId);
      updateContactList(Object.keys(users).filter(user => user !== currentUser));
@@ -416,7 +431,11 @@
      localStorage.removeItem('currentChatWith');
      messagesDiv.innerHTML = '';
      chatTitle.textContent = '';
-     updateContactList(Object.keys(users).filter(user => user !== currentUser));
+     if (currentUser && users[currentUser]) {
+         updateContactList(Object.keys(users).filter(user => user !== currentUser));
+     } else {
+         updateContactList([]); // Lista vazia para convidados
+     }
  }
 
  function showGlobalChat() {
@@ -475,14 +494,14 @@
  }
 
  function updateLastRead(otherUserId) {
-     if (currentUser && otherUserId !== 'global') {
+     if (currentUser && users[currentUser] && otherUserId !== 'global') {
          const lastReadRef = ref(database, `lastRead/${getChatId(currentUser, otherUserId)}/${currentUser}`);
          set(lastReadRef, serverTimestamp());
      }
  }
 
  function loadActiveChats() {
-     if (currentUser) {
+     if (currentUser && users[currentUser]) {
          const allUsers = Object.keys(users).filter(user => user !== currentUser);
          updateContactList(allUsers);
 
@@ -511,6 +530,9 @@
              });
              activeChatListeners[otherUser] = onValueCallback;
          });
+     } else {
+         // Se não houver currentUser registrado, não carregamos chats privados
+         updateContactList([]); // Mostra uma lista de contatos vazia para não logados
      }
  }
 
@@ -584,13 +606,17 @@
  }
 
  function toggleFavorite(user) {
-     if (favoriteContacts[user]) {
-         delete favoriteContacts[user];
+     if (currentUser && users[currentUser]) {
+         if (favoriteContacts[user]) {
+             delete favoriteContacts[user];
+         } else {
+             favoriteContacts[user] = true;
+         }
+         localStorage.setItem('favoriteContacts', JSON.stringify(favoriteContacts));
+         updateContactList(Object.keys(users).filter(u => u !== currentUser));
      } else {
-         favoriteContacts[user] = true;
+         alert("Você precisa estar logado para adicionar contatos aos favoritos.");
      }
-     localStorage.setItem('favoriteContacts', JSON.stringify(favoriteContacts));
-     updateContactList(Object.keys(users).filter(u => u !== currentUser));
  }
 
  function updateContactList(usersToDisplay) {
@@ -645,7 +671,13 @@
          actionsDiv.appendChild(favoriteIcon);
 
          li.appendChild(actionsDiv);
-         li.addEventListener('click', () => showCurrentChat(user));
+         li.addEventListener('click', () => {
+             if (currentUser && users[currentUser]) { // Só permite iniciar chat privado se for usuário logado
+                 showCurrentChat(user);
+             } else {
+                 alert("Você precisa estar logado com uma conta para iniciar um chat privado.");
+             }
+         });
          contactsUl.appendChild(li);
      });
  }
@@ -656,15 +688,15 @@
 
      if (users[username] && users[username] === password) {
          currentUser = username;
-         localStorage.setItem('currentUser', currentUser); // Salva o usuário no localStorage
+         localStorage.setItem('currentUser', currentUser);
          showChatInterface();
+         loadActiveChats(); // Carrega os contatos privados após o login
      } else {
          loginError.textContent = 'Usuário ou senha incorretos.';
      }
  });
 
  logoutButtonContacts.addEventListener('click', () => {
-     localStorage.removeItem('currentUser'); // Remove o usuário ao clicar em "Sair"
      showLoginForm();
  });
 
@@ -687,8 +719,10 @@
  sendButton.addEventListener('click', () => {
      if (currentGroupId) {
          addGroupMessage(messageInput.value);
-     } else {
+     } else if (currentUser && users[currentUser]) {
          addMessage(messageInput.value);
+     } else {
+         alert("Você precisa estar logado para enviar mensagens privadas.");
      }
  });
 
@@ -710,14 +744,22 @@
      showingFavorites = false;
      showAllContactsButton.classList.add('active');
      showFavoritesButton.classList.remove('active');
-     updateContactList(Object.keys(users).filter(u => u !== currentUser));
+     if (currentUser && users[currentUser]) {
+         updateContactList(Object.keys(users).filter(u => u !== currentUser));
+     } else {
+         updateContactList([]);
+     }
  });
 
  showFavoritesButton.addEventListener('click', () => {
      showingFavorites = true;
      showFavoritesButton.classList.add('active');
      showAllContactsButton.classList.remove('active');
-     updateContactList(Object.keys(users).filter(u => u !== currentUser));
+     if (currentUser && users[currentUser]) {
+         updateContactList(Object.keys(users).filter(u => u !== currentUser));
+     } else {
+         updateContactList([]);
+     }
  });
 
  createGroupButton.addEventListener('click', () => {
@@ -756,9 +798,7 @@
          createGroupError.textContent = '';
          groupNameInput.value = '';
          groupPasswordInput.value = '';
-         // After creating a group, refresh the list
          loadGroups();
-         // Optionally, navigate to the groups list
          showGroupsList();
      }).catch((error) => {
          createGroupError.textContent = `Erro ao criar grupo: ${error.message}`;
@@ -808,8 +848,7 @@
          enterPasswordError.textContent = `Erro ao verificar senha: ${error.message}`;
      });
  });
-
- // Typing indicator functions
+  // Typing indicator functions
  let typingTimeout;
  function showTypingIndicator() {
      typingIndicator.textContent = `Digitando...`;
@@ -828,25 +867,36 @@
 
  // Event listener for search input
  searchInput.addEventListener('input', () => {
-     updateContactList(Object.keys(users).filter(u => u !== currentUser));
+     if (currentUser && users[currentUser]) {
+         updateContactList(Object.keys(users).filter(u => u !== currentUser));
+     }
  });
 
  // Initial setup
- if (currentUser) {
+ if (localStorage.getItem('currentUser')) {
+     currentUser = localStorage.getItem('currentUser');
      showChatInterface();
-     // Ensure the correct filter is applied on load if showing favorites
-     if (showingFavorites) {
-         showFavoritesButton.classList.add('active');
-         showAllContactsButton.classList.remove('active');
-         updateContactList(Object.keys(users).filter(u => u !== currentUser
- ));
+     if (users[currentUser]) {
+         loadActiveChats(); // Carrega os contatos privados para usuários logados
+         if (showingFavorites) {
+             showFavoritesButton.classList.add('active');
+             showAllContactsButton.classList.remove('active');
+             updateContactList(Object.keys(users).filter(u => u !== currentUser));
+         } else {
+             showAllContactsButton.classList.add('active');
+             showFavoritesButton.classList.remove('active');
+             updateContactList(Object.keys(users).filter(u => u !== currentUser));
+         }
      } else {
-         showAllContactsButton.classList.add('active');
-         showFavoritesButton.classList.remove('active');
-         updateContactList(Object.keys(users).filter(u => u !== currentUser));
+         // Se o nome no localStorage não for um usuário registrado, trata como convidado
+         updateContactList([]); // Lista de contatos vazia
+         globalChatButton.click(); // Mostra o chat global inicialmente
      }
  } else {
-     showLoginForm();
+     // Usuário não logado, mostra a tela de login com opção de convidado
+     loginContainer.style.display = 'flex';
+     guestLoginContainer.style.display = 'block';
+     chatInterfaceDiv.style.display = 'none';
  }
 
  // Modal functionality for image zoom
@@ -857,5 +907,19 @@
  window.addEventListener('click', (event) => {
      if (event.target === modal) {
          modal.style.display = 'none';
+     }
+ });
+
+ // Event listener para entrar como convidado
+ guestLoginButton.addEventListener('click', () => {
+     const guestName = guestNameInput.value.trim();
+     if (guestName) {
+         currentUser = guestName;
+         localStorage.setItem('currentUser', currentUser);
+         showChatInterface();
+         updateContactList([]); // Lista de contatos vazia para convidados
+         globalChatButton.click(); // Redireciona para o chat global
+     } else {
+         alert('Por favor, digite um nome para entrar como convidado.');
      }
  });
