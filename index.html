@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
  <html lang="pt-BR">
  <head>
   <meta charset="UTF-8">
@@ -154,6 +154,56 @@
    .contact-info-message a:hover {
     text-decoration: underline;
    }
+
+   /* Estilos para a seção de login de convidado */
+   #guest-login-container {
+    text-align: center;
+    padding: 30px;
+    border-top: 1px solid var(--border-color);
+    margin-top: 20px;
+   }
+
+   #guest-login-container h3 {
+    color: var(--text-color);
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    font-weight: 300;
+   }
+
+   #guest-login-container input {
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.9em;
+    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    width: 80%;
+    max-width: 300px;
+   }
+
+   #guest-login-container input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 8px rgba(0, 188, 212, 0.4);
+   }
+
+   #guest-login-container button {
+    padding: 10px 20px;
+    background: var(--gradient-secondary);
+    color: var(--light-text);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 400;
+    transition: background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    box-shadow: var(--shadow-light);
+   }
+
+   #guest-login-container button:hover {
+    background: linear-gradient(to right, #78909c, #546e7a);
+    box-shadow: var(--shadow-medium);
+   }
   </style>
  </head>
  <body>
@@ -173,9 +223,15 @@
     <a href="https://www.instagram.com/blachat_of?igsh=MXFvZWJxYmViNm45aQ==" target="_blank" class="instagram-button">
      <i class="fab fa-instagram instagram-icon"></i> Contato Instagram
     </a>
+
+    <div id="guest-login-container">
+     <h3>Entrar como Convidado</h3>
+     <input type="text" id="guest-name-input" placeholder="Digite seu nome">
+     <button id="guest-login-button">Entrar no Chat</button>
+    </div>
    </div>
 
-   <div id="register-container">
+   <div id="register-container" style="display: none;">
     <h2>Cadastro</h2>
     <input type="text" id="register-username" placeholder="Nome de usuário (letras e números)">
     <div style="position: relative;">
@@ -191,15 +247,15 @@
     <p class="auth-switch">Já tem uma conta? <a href="#" id="show-login">Fazer login</a></p>
    </div>
 
-   <div id="chat-interface">
+   <div id="chat-interface" style="display: none;">
     <div id="contacts-list-container">
      <h3></h3>
 
      <div class="contacts-actions top-tabs">
-      <button id="show-all-contacts" class="active"><i class="fas fa-users"></i></button>
-      <button id="show-favorites"><i class="fas fa-star"></i></button>
-      <button id="global-chat-button"><i class="fas fa-globe"></i></button>
-      <button id="groups-button"><i class="fas fa-users"></i></button>
+      <button id="show-all-contacts" class="active"><i class="fas fa-users"></i> Todos</button>
+      <button id="show-favorites"><i class="fas fa-star"></i> Favoritos</button>
+      <button id="global-chat-button"><i class="fas fa-globe"></i> Global</button>
+      <button id="groups-button"><i class="fas fa-users"></i> Grupos</button>
       <button id="logout-button-contacts"><i class="fas fa-sign-out-alt"></i> Sair</button>
      </div>
 
@@ -290,10 +346,18 @@
    </div>
   </div>
 
+  <div id="guest-login-container" style="display: none; text-align: center; padding: 30px; border-top: 1px solid var(--border-color); margin-top: 20px;">
+   <h3>Entrar como Convidado</h3>
+   <input type="text" id="guest-name-input" placeholder="Digite seu nome">
+   <button id="guest-login-button">Entrar no Chat</
+   </button>
+  </div>
+
   <script>
    document.addEventListener('DOMContentLoaded', () => {
     const loginContainer = document.getElementById('login-container');
     const registerContainer = document.getElementById('register-container');
+    const guestLoginContainer = document.getElementById('guest-login-container');
     const showRegisterLink = document.getElementById('show-register');
     const showLoginLink = document.getElementById('show-login');
     const registerButton = document.getElementById('register-button');
@@ -308,12 +372,14 @@
     showRegisterLink.addEventListener('click', (e) => {
      e.preventDefault();
      loginContainer.style.display = 'none';
+     guestLoginContainer.style.display = 'none';
      registerContainer.style.display = 'flex';
     });
 
     showLoginLink.addEventListener('click', (e) => {
      e.preventDefault();
      registerContainer.style.display = 'none';
+     guestLoginContainer.style.display = 'block'; // Mostrar "Entrar como Convidado" ao voltar para login
      loginContainer.style.display = 'flex';
      registerSuccess.style.display = 'none'; // Esconde a mensagem de sucesso ao voltar para o login
      registerError.textContent = ''; // Limpa qualquer erro de registro
@@ -361,8 +427,7 @@
       registerError.textContent = 'Erro ao conectar com o servidor.';
      }
     });
-
-    // Função para alternar a visibilidade da senha
+        // Função para alternar a visibilidade da senha
     const togglePasswordVisibility = (inputElement, toggleElement) => {
      const type = inputElement.getAttribute('type') === 'password' ? 'text' : 'password';
      inputElement.setAttribute('type', type);
@@ -384,3 +449,4 @@
   <script type="module" src="script.js"></script>
  </body>
  </html>
+ 
