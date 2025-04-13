@@ -1,41 +1,31 @@
  // user.js
 
  const users = {
-  '#Henrique': 'as12', // Exemplo de ADM
-  '#morango': '666',
-  '#Transante': 'Nett4',
-  '#pesopesado': '170311',
-  '#macho': 'as12',
-  '#lucas': 'lucas',
-  '#Bia18': 'bianca200610',
-  '#alan': 'qwe1234',
-  '#Kauan777': 'kauan2525',
-  '#Tammyson777': 'tammy25tammy',
-  '#Xkz': '102030',
-  '#Blachat.adm': '0112',
-  '#tkg': '102030',
-  '#Voce': 'as12',
-  '#anonimo': 'as12',
-  '#Scarlett': '444',
-  '#convidado': '1234',
-  '#linda': 'as12',
-  '#almeidasx22': '251219',
-  '#almeidasx': '251219',
-  '#almeida22': '251219gaby',
-  '#bianca': 'isndjs', //bots
-  '#luis': 'bdhdhdhd',
-  '#gato': 'jdjdhdhd',
-  '#estefani': 'jendjd',
-  '#marlon': 'jendjd',
-  '#naruto': 'shbdhd',
-  '#neymar': 'ndndjd',
-  '#sabrina': 'hdudndjdnd',
-  '#dilma': 'jsndusjs',
-  '#lula': 'sjeneuej',
-  '#luna': 'usndudnddj'
+'Henrique': 'as12', // Exemplo de ADM
+  'morango': '666',
+  'Transante': 'Nett4',
+  'pesopesado': '170311',
+  'macho': 'as12',
+  'lucas': 'lucas',
+  'Bia18': 'bianca200610',
+  'alan': 'qwe1234',
+  'Kauan777': 'kauan2525',
+  'Tammyson777': 'tammy25tammy',
+  'Xkz': '102030',
+  'Blachat': '0112',
+  'tkg': '102030',
+  'Voce': 'as12',
+  'anonimo': 'as12',
+  'Scarlett': '444',
+  'linda': 'as12',
+  'almeidasx22': '251219',
+  'almeidasx': '251219',
+  'almeida22': '251219gaby',
+  'bianca': 'isndjs', 
+  'luis': 'bdhdhdhd'
  };
 
- const admins = ['#Blachat.adm'];
+ const admins = ['Blachat'];
 
  // Função para validar se o nome contém apenas letras e números
  function isValidGuestName(name) {
