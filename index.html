@@ -704,5 +704,44 @@ loginError.textContent = 'Por favor, preencha nome de usuário e senha.';
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6759588751146975"
      crossorigin="anonymous"></script>
 <script type="module" src="script.js"></script>
-</body>
+<div id="cookie-banner">
+  Este site utiliza cookies para garantir a melhor experiência e exibir anúncios personalizados, conforme nossa <a href="/politica-de-privacidade" style="color: #4CAF50;">Política de Privacidade</a>.
+  <button onclick="aceitarCookies()">Aceitar</button>
+</div>
+
+<style>
+  #cookie-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #222;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    z-index: 1000;
+  }
+  #cookie-banner button {
+    margin-left: 15px;
+    padding: 5px 10px;
+    background: #4CAF50;
+    border: none;
+    color: white;
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  function aceitarCookies() {
+    document.getElementById('cookie-banner').style.display = 'none';
+    document.cookie = "cookies_aceitos=true; max-age=" + (60 * 60 * 24 * 365) + "; path=/";
+  }
+
+  window.onload = function () {
+    if (document.cookie.indexOf("cookies_aceitos=true") > -1) {
+      document.getElementById('cookie-banner').style.display = 'none';
+    }
+  };
+</script>
+ </body>
 </html>
