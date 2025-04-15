@@ -755,6 +755,22 @@ loginError.textContent = 'Por favor, preencha nome de usuário e senha.';
   </script>
   <script type="text/javascript" src="//www.highperformanceformat.com/1fa86231c414fe26f65ad31530bf3825/invoke.js"></script>
   </div>
+<div id="meu-anuncio-temporizado" style="display: none; position: fixed; top: 10px; right: 10px; width: 300px; height: auto; z-index: 9999; background: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.3); padding: 5px; border-radius: 8px;">
+  <button onclick="document.getElementById('meu-anuncio-temporizado').style.display='none'" style="position:absolute; top: 2px; right: 5px; border:none; background:transparent; font-size:16px; cursor:pointer;">×</button>
   <script type='text/javascript' src='//pl26382043.profitableratecpm.com/4a/ed/c8/4aedc86e8e3b5b80acd183238236abf1.js'></script>
+</div>
+
+<script>
+  function mostrarAnuncio() {
+    const anuncio = document.getElementById("meu-anuncio-temporizado");
+    anuncio.style.display = "block";
+  }
+
+  // Mostra a cada 1 minuto (60000 milissegundos)
+  setInterval(mostrarAnuncio, 60000);
+
+  // (Opcional) Mostra o primeiro depois de 1 min também
+  // Se quiser que apareça de cara, chame mostrarAnuncio() direto
+</script>
  </body>
 </html>
